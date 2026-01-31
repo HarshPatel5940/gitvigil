@@ -1,0 +1,39 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Environment files (secrets)
+.env
+*.pem
+
+# Build artifacts
+gitvigil
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test files
+*_test.go
+coverage.out
+coverage.html
+
+# Documentation
+*.md
+!README.md
+docs/
+
+# Docker files (not needed in context)
+docker-compose*.yml
+Dockerfile*
+
+# Misc
+.DS_Store
+Thumbs.db
+tmp/

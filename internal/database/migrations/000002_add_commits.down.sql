@@ -1,0 +1,12 @@
+DROP INDEX IF EXISTS idx_alerts_unacked;
+DROP INDEX IF EXISTS idx_alerts_severity;
+DROP INDEX IF EXISTS idx_alerts_type;
+DROP INDEX IF EXISTS idx_alerts_repo;
+DROP INDEX IF EXISTS idx_push_events_forced;
+DROP INDEX IF EXISTS idx_push_events_repo;
+DROP INDEX IF EXISTS idx_commits_backdated;
+DROP INDEX IF EXISTS idx_commits_pushed_at;
+DROP INDEX IF EXISTS idx_commits_repo;
+DROP TABLE IF EXISTS alerts;
+DROP TABLE IF EXISTS push_events;
+DROP TABLE IF EXISTS commits;
