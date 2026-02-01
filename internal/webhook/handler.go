@@ -3,6 +3,7 @@ package webhook
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"time"
@@ -36,6 +37,13 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Check if GitHub client is configured
+	if h.gh == nil {
+		h.logger.Error().Msg("webhook received but GitHub App not configured (missing private key)")
+		http.Error(w, "GitHub App not configured", http.StatusServiceUnavailable)
+		return
+	}
+
 	// Read body
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -49,7 +57,13 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	signature := r.Header.Get("X-Hub-Signature-256")
 	if h.cfg.WebhookSecret != "" {
 		if err := ValidateSignature(body, signature, []byte(h.cfg.WebhookSecret)); err != nil {
-			h.logger.Warn().Err(err).Msg("signature validation failed")
+			h.logger.Warn().
+				Err(err).
+				Str("signature_header", signature).
+				Int("body_len", len(body)).
+				Int("secret_len", len(h.cfg.WebhookSecret)).
+				Str("secret_hex", fmt.Sprintf("%x", h.cfg.WebhookSecret)).
+				Msg("signature validation failed")
 			http.Error(w, "invalid signature", http.StatusUnauthorized)
 			return
 		}

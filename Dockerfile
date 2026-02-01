@@ -6,13 +6,7 @@
 # -----------------------------------------------------------------------------
 # Build Stage
 # -----------------------------------------------------------------------------
-FROM golang:1.23-alpine AS builder
-
-# Install build dependencies
-RUN apk add --no-cache git ca-certificates tzdata
-
-# Create non-root user for runtime
-RUN adduser -D -g '' appuser
+FROM golang:1.23-bookworm AS builder
 
 WORKDIR /app
 
@@ -34,21 +28,22 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
 # -----------------------------------------------------------------------------
 # Runtime Stage
 # -----------------------------------------------------------------------------
-FROM alpine:3.19
+FROM debian:bookworm-slim
 
 # Install runtime dependencies
-RUN apk --no-cache add ca-certificates tzdata
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-# Import user from builder
-COPY --from=builder /etc/passwd /etc/passwd
-COPY --from=builder /etc/group /etc/group
+# Create non-root user
+RUN useradd -r -u 1001 appuser
 
 WORKDIR /app
 
 # Copy binary from builder
 COPY --from=builder /gitvigil .
 
-# Copy migrations (embedded in binary, but keep for reference)
+# Copy migrations
 COPY --from=builder /app/internal/database/migrations ./internal/database/migrations
 
 # Use non-root user

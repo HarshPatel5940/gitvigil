@@ -15,6 +15,7 @@ import (
 
 func main() {
 	// Setup logger
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 	logger := zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr}).
 		With().
 		Timestamp().
@@ -58,12 +59,17 @@ func main() {
 	}
 	logger.Info().Msg("migrations completed")
 
-	// Create GitHub App client
-	gh, err := github.NewAppClient(cfg.AppID, cfg.PrivateKey)
-	if err != nil {
-		logger.Fatal().Err(err).Msg("failed to create GitHub App client")
+	// Create GitHub App client (optional - webhooks won't work without it)
+	var gh *github.AppClient
+	if len(cfg.PrivateKey) > 0 {
+		gh, err = github.NewAppClient(cfg.AppID, cfg.PrivateKey)
+		if err != nil {
+			logger.Fatal().Err(err).Msg("failed to create GitHub App client")
+		}
+		logger.Info().Int64("app_id", gh.AppID()).Msg("GitHub App client created")
+	} else {
+		logger.Warn().Msg("no private key configured - GitHub App features disabled (webhooks, license checks)")
 	}
-	logger.Info().Int64("app_id", gh.AppID()).Msg("GitHub App client created")
 
 	// Create and start server
 	srv := server.New(cfg, db, gh, logger)

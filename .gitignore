@@ -1,4 +1,4 @@
 .temp/*
 *.pem
 .env
-
+.DS_Store

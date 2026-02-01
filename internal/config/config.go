@@ -60,6 +60,14 @@ func Load() (*Config, error) {
 
 	// Load private key if path is specified
 	if cfg.PrivateKeyPath != "" {
+		// Check if file exists first
+		if _, err := os.Stat(cfg.PrivateKeyPath); err != nil {
+			if os.IsNotExist(err) {
+				return nil, fmt.Errorf("private key file not found: %s (generate one from your GitHub App settings)", cfg.PrivateKeyPath)
+			}
+			return nil, fmt.Errorf("cannot access private key file: %w", err)
+		}
+
 		key, err := os.ReadFile(cfg.PrivateKeyPath)
 		if err != nil {
 			return nil, fmt.Errorf("failed to read private key: %w", err)

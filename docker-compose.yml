@@ -55,15 +55,16 @@ services:
       GITHUB_APP_CLIENT_ID: ${GITHUB_APP_CLIENT_ID}
       GITHUB_APP_CLIENT_SECRET: ${GITHUB_APP_CLIENT_SECRET}
       GITHUB_WEBHOOK_SECRET: ${GITHUB_WEBHOOK_SECRET}
-      GITHUB_PRIVATE_KEY_PATH: /app/private-key.pem
+      # Set this if you mount a private key
+      GITHUB_PRIVATE_KEY_PATH: ${GITHUB_PRIVATE_KEY_PATH:-}
 
       # Detection thresholds
       BACKDATE_SUSPICIOUS_HOURS: ${BACKDATE_SUSPICIOUS_HOURS:-24}
       BACKDATE_CRITICAL_HOURS: ${BACKDATE_CRITICAL_HOURS:-72}
       STREAK_INACTIVITY_HOURS: ${STREAK_INACTIVITY_HOURS:-72}
-    volumes:
-      # Mount private key as read-only
-      - ${GITHUB_PRIVATE_KEY_PATH:-./private-key.pem}:/app/private-key.pem:ro
+    # Uncomment and set path to mount private key:
+    # volumes:
+    #   - ./your-app.private-key.pem:/app/private-key.pem:ro
     depends_on:
       db:
         condition: service_healthy

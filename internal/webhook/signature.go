@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
+	"fmt"
 	"strings"
 )
 
@@ -34,6 +35,8 @@ func ValidateSignature(payload []byte, signature string, secret []byte) error {
 	expected := mac.Sum(nil)
 
 	if !hmac.Equal(expected, signatureBytes) {
+		// Debug: log expected vs received
+		fmt.Printf("DEBUG: expected=%x received=%x\n", expected, signatureBytes)
 		return ErrSignatureMismatch
 	}
 
